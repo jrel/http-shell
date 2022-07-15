@@ -2,6 +2,7 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "demo": "packages/demo",
     "http-shell": "packages/http-shell"
   }
 }
