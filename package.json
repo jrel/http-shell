@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {},
   "private": true,
-  "dependencies": {},
   "devDependencies": {
+    "@nrwl/angular": "^14.4.2",
     "@nrwl/cli": "14.4.2",
     "@nrwl/js": "14.4.2",
     "@nrwl/nx-cloud": "latest",
