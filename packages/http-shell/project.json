@@ -1,7 +1,6 @@
 {
   "projectType": "library",
   "sourceRoot": "packages/http-shell/src",
-  "prefix": "http-shell",
   "targets": {
     "build": {
       "executor": "@nrwl/angular:package",
@@ -32,7 +31,9 @@
       "options": {
         "lintFilePatterns": [
           "packages/http-shell/**/*.ts",
-          "packages/http-shell/**/*.html"
+          "packages/http-shell/**/*.html",
+          "packages/http-shell/endpoints/**/*.ts",
+          "packages/http-shell/endpoints/**/*.html"
         ]
       }
     }

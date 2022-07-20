@@ -15,7 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@jrel/http-shell": ["packages/http-shell/src/index.ts"]
+      "@jrel/http-shell": ["packages/http-shell/src/index.ts"],
+      "@jrel/http-shell/endpoints": [
+        "packages/http-shell/endpoints/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

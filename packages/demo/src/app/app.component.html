@@ -1,1 +1,5 @@
-<http-shell-nx-welcome></http-shell-nx-welcome>
+<div *httpShell="'https://api.github.com/users/jrel'; let data">
+  <pre>{{ data.login| json }}</pre>
+  <div *httpShellLoading>Loading...</div>
+  <div *httpShellError>Error</div>
+</div>

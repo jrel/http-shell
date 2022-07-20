@@ -1,9 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { HttpShellDirective } from './http-shell.directive';
+import * as DIRECTIVES from './directives';
 
 @NgModule({
-  imports: [CommonModule, HttpShellDirective],
-  exports: [HttpShellDirective],
+  imports: [CommonModule],
+  declarations: [
+    DIRECTIVES.HttpShellDirective,
+    DIRECTIVES.HttpShellErrorDirective,
+    DIRECTIVES.HttpShellLoadingDirective,
+  ],
+  exports: [
+    DIRECTIVES.HttpShellDirective,
+    DIRECTIVES.HttpShellErrorDirective,
+    DIRECTIVES.HttpShellLoadingDirective,
+  ],
 })
 export class HttpShellModule {}
