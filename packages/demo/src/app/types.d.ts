@@ -1,7 +1,7 @@
-import { Endpoints as IEndpoints } from '@jrel/http-shell/endpoints';
+import '@jrel/http-shell/endpoints';
 
 declare module '@jrel/http-shell/endpoints' {
-  export interface Endpoints extends IEndpoints {
+  export interface Endpoints {
     'https://api.github.com/users/jrel': {
       login: string;
     };
