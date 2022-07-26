@@ -4,15 +4,7 @@ import * as DIRECTIVES from './directives';
 
 @NgModule({
   imports: [CommonModule],
-  declarations: [
-    DIRECTIVES.HttpShellDirective,
-    DIRECTIVES.HttpShellErrorDirective,
-    DIRECTIVES.HttpShellLoadingDirective,
-  ],
-  exports: [
-    DIRECTIVES.HttpShellDirective,
-    DIRECTIVES.HttpShellErrorDirective,
-    DIRECTIVES.HttpShellLoadingDirective,
-  ],
+  declarations: [DIRECTIVES.HttpShellDirective],
+  exports: [DIRECTIVES.HttpShellDirective],
 })
 export class HttpShellModule {}

@@ -1,10 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import {
   AfterViewInit,
-  ContentChild,
   Directive,
   EmbeddedViewRef,
   Input,
+  OnChanges,
   OnDestroy,
   TemplateRef,
   ViewContainerRef,
@@ -12,32 +12,42 @@ import {
 import { Endpoints } from '@jrel/http-shell/endpoints';
 import { ReplaySubject, Subscription } from 'rxjs';
 import { switchMap, take, tap } from 'rxjs/operators';
-import { HttpShellErrorDirective, HttpShellLoadingDirective } from '.';
 import { Context } from '../interfaces';
-import { TemplateDirective } from './template.directive';
 
 @Directive({
   selector: '[httpShell]',
 })
-export class HttpShellDirective<URL extends keyof Endpoints, R = Endpoints[URL]>
-  extends TemplateDirective<Context<R>>
-  implements AfterViewInit, OnDestroy
+export class HttpShellDirective<
+  URL extends keyof Endpoints = keyof Endpoints,
+  R = Endpoints[URL]
+> implements AfterViewInit, OnDestroy, OnChanges
 {
-  private readonly url$ = new ReplaySubject<URL>();
+  private readonly reload$ = new ReplaySubject<null>();
   private readonly subscription = new Subscription();
 
-  @Input('httpShell') set url(url: URL) {
-    this.url$.next(url);
-  }
-  @ContentChild(HttpShellLoadingDirective) loading?: HttpShellLoadingDirective;
-  @ContentChild(HttpShellErrorDirective) error?: HttpShellErrorDirective;
+  @Input('httpShell') url!: URL;
+  @Input('httpShellParams')
+  params?:
+    | HttpParams
+    | Record<
+        string,
+        string | number | boolean | ReadonlyArray<string | number | boolean>
+      >;
+  @Input('httpShellVariables')
+  variables?: Record<string, string>;
+
+  @Input('httpShellLoading')
+  loading?: TemplateRef<any>;
+
+  @Input('httpShellError')
+  error?: TemplateRef<any>;
+
+  private currentView: EmbeddedViewRef<unknown> | null = null;
   constructor(
     private readonly http: HttpClient,
-    template: TemplateRef<Context<R>>,
+    private readonly template: TemplateRef<Context<R>>,
     private readonly viewContainer: ViewContainerRef
-  ) {
-    super(template);
-  }
+  ) {}
 
   static ngTemplateContextGuard<
     URL extends keyof Endpoints,
@@ -50,40 +60,65 @@ export class HttpShellDirective<URL extends keyof Endpoints, R = Endpoints[URL]>
     this.subscription.unsubscribe();
   }
 
+  ngOnChanges(): void {
+    this.reload$.next(null);
+  }
   ngAfterViewInit(): void {
-    const loadingView = this.createEmbeddedView(this.loading);
     this.subscription.add(
-      this.url$
+      this.reload$
         .pipe(
-          switchMap((url) =>
-            this.http.get<R>(url, { observe: 'response' }).pipe(
-              take(1),
-              tap({
-                next: (res) => {
-                  loadingView?.destroy();
-                  const context = {
-                    status: res.status,
-                    $implicit: res.body,
-                  };
-                  this.createEmbeddedView(this, context);
-                },
-                error: () => {
-                  loadingView?.destroy();
-                  this.createEmbeddedView(this.error);
-                },
+          tap(() => {
+            this.currentView?.destroy();
+            this.currentView = this.createEmbeddedView(this.loading);
+          }),
+
+          switchMap(() =>
+            this.http
+              .get<R>(this.prepareUrl(), {
+                observe: 'response',
+                params: this.params,
               })
-            )
+              .pipe(
+                take(1),
+                tap({
+                  next: (res) => {
+                    this.currentView?.destroy();
+                    const context = {
+                      status: res.status,
+                      $implicit: res.body,
+                    };
+                    this.currentView = this.createEmbeddedView(
+                      this.template,
+                      context
+                    );
+                  },
+                  error: () => {
+                    this.currentView?.destroy();
+                    this.currentView = this.createEmbeddedView(this.error);
+                  },
+                })
+              )
           )
         )
         .subscribe()
     );
   }
 
+  private prepareUrl(): string {
+    const url = new URL(this.url);
+
+    url.pathname = url.pathname.replace(
+      /:([^/]+)/g,
+      (_, key) => this.variables?.[key] ?? ''
+    );
+    return url.toString();
+  }
+
   private createEmbeddedView<T>(
-    dir?: TemplateDirective<T>,
+    template?: TemplateRef<T>,
     context?: T
   ): EmbeddedViewRef<T> | null {
-    if (!dir) return null;
-    return this.viewContainer.createEmbeddedView<T>(dir.template, context);
+    if (!template) return null;
+    return this.viewContainer.createEmbeddedView<T>(template, context);
   }
 }

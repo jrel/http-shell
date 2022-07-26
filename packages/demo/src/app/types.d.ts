@@ -8,5 +8,13 @@ declare module '@jrel/http-shell/endpoints' {
     'https://api.github.com/error': {
       login: string;
     };
+    'https://api.github.com/users/jrel/repos': [
+      {
+        id: string;
+      }
+    ];
+    'https://api.github.com/users/:user': {
+      login: string;
+    };
   }
 }

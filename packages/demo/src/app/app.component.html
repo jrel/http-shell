@@ -1,5 +1,17 @@
-<div *httpShell="'https://api.github.com/users/jrel'; let data">
-  <pre>{{ data.login| json }}</pre>
-  <div *httpShellLoading>Loading...</div>
-  <div *httpShellError>Error</div>
+<input type="number" [(ngModel)]="page" />
+
+<div
+  *httpShell="
+    'https://api.github.com/users/:user';
+    variables: {
+      user: 'jrel'
+    };
+    loading: loading;
+    error: error;
+    let data
+  "
+>
+  <pre>{{ data.login }}</pre>
 </div>
+<ng-template #loading let-error>Loading...</ng-template>
+<ng-template #error let-error>Error</ng-template>
